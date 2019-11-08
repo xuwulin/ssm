@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- spring的配置文件，这里主要配置和业务逻辑有关的 比如：数据源，事务控制... -->
+
+    <!-- 配置需要自动扫描的包 -->
+    <!-- use-default-filters="true"(默认)表示要扫描com.xwl下的所有的包，设置扫描指定的包则需要设置为false -->
+    <context:component-scan base-package="com.xwl">
+        <!-- exclude-filter 表示不扫描加了 @Controller 注解的类 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+
+    <!-- =========================配置数据源开始========================= -->
+    <!-- 引入外部的配置文件 dbconfig.properties -->
+    <context:property-placeholder location="classpath:dbconfig.properties" />
+    <!-- c3p0数据源 -->
+    <bean id="pooledDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
+        <property name="driverClass" value="${jdbc.driverClass}"></property>
+        <property name="user" value="${jdbc.user}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+    <!-- =========================配置数据源结束========================= -->
+
+    <!-- =========================配置和MyBatis的整合开始================ -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 指定mybatis全局配置文件的位置 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+        <!-- 指定数据源 -->
+        <property name="dataSource" ref="pooledDataSource"></property>
+        <!-- 指定mybatis，mapper文件的位置：类路径下的所有.xml文件 -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+    </bean>
+    <!-- 配置扫描器，将mybatis接口的实现加入到ioc容器中 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 扫描所有dao接口的实现，加入到ioc容器中 -->
+        <property name="basePackage" value="com.xwl.dao"></property>
+    </bean>
+    <!-- 配置一个可以执行批量的sqlSession -->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+        <constructor-arg name="executorType" value="BATCH"></constructor-arg>
+    </bean>
+    <!-- =========================配置和MyBatis的整合结束================ -->
+
+    <!-- =========================事务控制的配置开始===================== -->
+    <!-- 事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 控制住数据源 -->
+        <property name="dataSource" ref="pooledDataSource"></property>
+    </bean>
+    <!-- 配置事务增强，事务如何切入  -->
+    <!-- transaction-manager="transactionManager" 默认值就是transactionManager可以不写
+    如果你配置的事务管理器的名字不叫transactionManager，那这里的名字必须和你的事务管理器的名字一致 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!-- *表示该切入点切入的所有方法都是事务方法 -->
+            <tx:method name="*"/>
+            <!-- get*表示以get开始的所有方法，read-only="true"认为以get开头的方法都是查询方法（只读），可以做一些优化 -->
+            <tx:method name="get*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 配置事务 -->
+    <!-- 方式一：开启基于注解的事务 -->
+    <!-- 方式二：也可以使用xml配置形式的事务，如下配置 -->
+    <aop:config>
+        <!-- 切入点表达式：表示哪些方法要切入事务 -->
+        <!-- execution(方法修饰符(可选) 返回类型 方法名 参数 异常模式(可选)) ，可以使用通配符匹配字符，*可以匹配任意字符 -->
+        <!-- public 表示访问权限控制符，可以不写 -->
+        <!-- 第一个 * 表示任意类型的返回值 -->
+        <!-- service.. 中的..表示：即使service包下还含有子包也行 -->
+        <!-- 第二个 * 表示任意方法 -->
+        <!-- (..)表示任意参数 -->
+        <aop:pointcut expression="execution(public * com.xwl.service..*(..))" id="txPoint"/>
+        <!-- 配置事务增强 -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint"/>
+    </aop:config>
+    <!-- =========================事务控制的配置结束===================== -->
+
+
+    <!-- Spring配置文件的核心点（数据源、与mybatis的整合，事务控制） -->
+
+</beans>
