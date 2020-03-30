@@ -1,121 +1,125 @@
 <!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          id="WebApp_ID" version="2.5">
-  <display-name>Archetype Created Web Application</display-name>
+    <display-name>Archetype Created Web Application</display-name>
 
-  <!--
-  一般的web工程中都会用到web.xml，可以方便的开发web工程。
-  web.xml文件是用来初始化配置信息：比如Welcome页面、servlet、servlet-mapping、filter、listener、启动加载级别等。
-  但是要说明的是web.xml并不是必须的，一个web工程可以没有web.xml文件。
+    <!--
+    一般的web工程中都会用到web.xml，可以方便的开发web工程。
+    web.xml文件是用来初始化配置信息：比如Welcome页面、servlet、servlet-mapping、filter、listener、启动加载级别等。
+    但是要说明的是web.xml并不是必须的，一个web工程可以没有web.xml文件。
 
-  初始化过程：
-  1、在启动Web项目时，容器(比如Tomcat)会读web.xml配置文件中的两个节点listener和contex-param。
-  2、接着容器会创建一个ServletContext(上下文),应用范围内即整个WEB项目都能使用这个上下文。
-  3、接着容器会将读取到转化为键值对,并交给ServletContext。
-  4、容器创建中的类实例,即创建监听（备注：listener定义的类可以是自定义的类但必须需要继承ServletContextListener）。
-  5、在监听的类中会有一个contextInitialized(ServletContextEvent event)初始化方法，在这个方法中可以通过event.getServletContext().getInitParameter(“contextConfigLocation”) 来得到context-param 设定的值。在这个类中还必须有一个contextDestroyed(ServletContextEvent event) 销毁方法.用于关闭应用前释放资源，比如说数据库连接的关闭。
-  6、得到这个context-param的值之后,你就可以做一些操作了.注意,这个时候你的WEB项目还没有完全启动完成.这个动作会比所有的Servlet都要早。
-  7、web.xml的加载过程是context-param >> listener >> fileter >> servlet
-  -->
+    初始化过程：
+    1、在启动Web项目时，容器(比如Tomcat)会读web.xml配置文件中的两个节点listener和contex-param。
+    2、接着容器会创建一个ServletContext(上下文),应用范围内即整个WEB项目都能使用这个上下文。
+    3、接着容器会将读取到转化为键值对,并交给ServletContext。
+    4、容器创建中的类实例,即创建监听（备注：listener定义的类可以是自定义的类但必须需要继承ServletContextListener）。
+    5、在监听的类中会有一个contextInitialized(ServletContextEvent event)初始化方法，在这个方法中可以通过event.getServletContext().getInitParameter(“contextConfigLocation”) 来得到context-param 设定的值。在这个类中还必须有一个contextDestroyed(ServletContextEvent event) 销毁方法.用于关闭应用前释放资源，比如说数据库连接的关闭。
+    6、得到这个context-param的值之后,你就可以做一些操作了.注意,这个时候你的WEB项目还没有完全启动完成.这个动作会比所有的Servlet都要早。
+    7、web.xml的加载过程是context-param >> listener >> fileter >> servlet
+    -->
 
-  <!-- 1、启动spring的容器 -->
-  <!-- needed for ContextLoaderListener -->
-  <!-- web.xml里面可以定义两种参数：
-  (1)application范围内的参数（上下文参数），存放在servletcontext中，在web.xml中配置如下 -->
-  <context-param>
-    <!-- 设定上下文的参数名称。必须是唯一名称 -->
-    <param-name>contextConfigLocation</param-name>
-    <!-- 设定的参数名称的值 -->
-    <param-value>classpath:applicationContext.xml</param-value>
-  </context-param>
+    <!-- Bootstraps the root web application context before servlet initialization -->
+    <!-- 该元素用来注册一个监听器类。可以收到事件什么时候发生以及用什么作为响应的通知。
+    事件监听程序在建立、修改和删除会话或servlet环境时得到通知。常与context-param联合使用。 -->
+    <listener>
+        <!-- 指定监听类，该类继承ServletContextListener
+             包含初始化方法contextInitialized(ServletContextEvent event) 和 销毁方法contextDestoryed(ServletContextEvent event)
+             作用：初始化spring的IOC容器
+        -->
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
 
-  <!-- Bootstraps the root web application context before servlet initialization -->
-  <!-- 该元素用来注册一个监听器类。可以收到事件什么时候发生以及用什么作为响应的通知。
-  事件监听程序在建立、修改和删除会话或servlet环境时得到通知。常与context-param联合使用。 -->
-  <listener>
-    <!-- 指定监听类，该类继承ServletContextListener 包含初始化方法contextInitialized(ServletContextEvent event) 和 销毁方法contextDestoryed(ServletContextEvent event) -->
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>
+    <!-- 1、加载spring的配置，启动spring的容器 -->
+    <!-- needed for ContextLoaderListener -->
+    <!-- web.xml里面可以定义两种参数：
+    (1)application范围内的参数（上下文参数），存放在servletcontext中，在web.xml中配置如下 -->
+    <context-param>
+        <!-- 设定上下文的参数名称。必须是唯一名称 -->
+        <param-name>contextConfigLocation</param-name>
+        <!-- 设定的参数名称的值 -->
+        <param-value>classpath:applicationContext.xml</param-value>
+    </context-param>
 
-  <!-- The front controller of this Spring Web application, responsible for handling all application requests -->
-  <!-- 2、springmvc的前端控制器，用于拦截所有请求-->
-  <!-- web.xml里面可以定义两种参数：
-  (2)servlet范围内的参数，只能在servlet的init()方法中取得，在web.xml中配置如下： -->
-  <servlet>
-    <!-- 前端控制器名称（servlet-name表示servlet的内部名称，自定义。尽量有意义） -->
-    <servlet-name>dispatcherServlet</servlet-name>
-    <!-- servlet的类全名 -->
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <!-- 可以在 init-param 中指定springmvc的配置文件的位置 -->
-    <!-- 但通常我们都不在此处指定，如果不在此处指定，
-    那就必须在和 web.xml 同级的目录下，新建一个 <servlet-name>标签中的名称-servlet.xml，即dispatcherServlet-servlet.xml -->
-    <!--<init-param>
-      <param-name>contextConfigLocation</param-name>
-      <param-value>location</param-value>
-    </init-param>-->
-    <!-- 表示启动容器时刻初始化该servlet的顺序 -->
-    <load-on-startup>1</load-on-startup>
-  </servlet>
+    <!-- The front controller of this Spring Web application, responsible for handling all application requests -->
+    <!-- 2、springmvc的前端控制器，用于拦截所有请求-->
+    <!-- web.xml里面可以定义两种参数：
+    (2)servlet范围内的参数，只能在servlet的init()方法中取得，在web.xml中配置如下： -->
+    <servlet>
+        <!-- 前端控制器名称（servlet-name表示servlet的内部名称，自定义。尽量有意义） -->
+        <servlet-name>dispatcherServlet</servlet-name>
+        <!-- servlet的类全名 -->
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- 可以在 init-param 中指定springmvc的配置文件的位置 -->
+        <!-- 但通常我们都不在此处指定，如果不在此处指定，那就必须在和 web.xml 同级的目录下，
+             新建一个 <servlet-name>标签中的名称-servlet.xml，即dispatcherServlet-servlet.xml
+        -->
+        <!--<init-param>
+          <param-name>contextConfigLocation</param-name>
+          <param-value>location</param-value>
+        </init-param>-->
+        <!-- 表示启动容器时刻初始化该servlet的顺序 -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
-  <!-- Map all requests to the DispatcherServlet for handling -->
-  <!-- servlet-mapping元素在Servlet和URL样式之间定义一个映射。 它包含了两个子元素servlet- name和url-pattern：-->
-  <servlet-mapping>
-    <!-- servlet-name元素给出的Servlet名字必须是：在servlet元素中声明过的Servlet的名字。 -->
-    <servlet-name>dispatcherServlet</servlet-name>
-    <!-- 表示哪些请求交给SpringwebMVC处理，“/”是用来定义默认servlet映射的,表示拦截所有请求。
-    也可以如"*.html"表示拦截所有以html为扩展名的请求。默认使用WebApplicationContext作为上下文，
-    spring默认配置文件为"/web-inf/[servlet名字]-servlet.xml"。 -->
-    <url-pattern>/</url-pattern>
-  </servlet-mapping>
+    <!-- Map all requests to the DispatcherServlet for handling -->
+    <!-- servlet-mapping元素在Servlet和URL样式之间定义一个映射。 它包含了两个子元素servlet- name和url-pattern：-->
+    <servlet-mapping>
+        <!-- servlet-name元素给出的Servlet名字必须是：在servlet元素中声明过的Servlet的名字。 -->
+        <servlet-name>dispatcherServlet</servlet-name>
+        <!-- 表示哪些请求交给SpringwebMVC处理，“/”是用来定义默认servlet映射的,表示拦截所有请求。
+        也可以如"*.html"表示拦截所有以html为扩展名的请求。默认使用WebApplicationContext作为上下文，
+        spring默认配置文件为"/web-inf/[servlet名字]-servlet.xml"。 -->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
 
-  <!-- 注：过滤器有多个是有先后顺序的！！！ -->
-  <!-- 3、字符编码过滤器，一定要放在所有过滤器之前 -->
-  <filter>
-    <filter-name>CharacterEncodingFilter</filter-name>
-    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
-    <init-param>
-      <!-- 编码字符集为utf-8 -->
-      <param-name>encoding</param-name>
-      <param-value>utf-8</param-value>
-    </init-param>
-    <init-param>
-      <!-- 强制请求编码 -->
-      <param-name>forceRequestEncoding</param-name>
-      <param-value>true</param-value>
-    </init-param>
-    <init-param>
-      <!-- 强制响应编码 -->
-      <param-name>forceResponseEncoding</param-name>
-      <param-value>true</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-    <filter-name>CharacterEncodingFilter</filter-name>
-    <!-- 指CharacterEncodingFilter这个filter需要拦截所有请求 -->
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <!-- 注：过滤器有多个是有先后顺序的！！！ -->
+    <!-- 3、字符编码过滤器，一定要放在所有过滤器之前 -->
+    <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <!-- 编码字符集为utf-8 -->
+            <param-name>encoding</param-name>
+            <param-value>utf-8</param-value>
+        </init-param>
+        <init-param>
+            <!-- 强制请求编码 -->
+            <param-name>forceRequestEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <!-- 强制响应编码 -->
+            <param-name>forceResponseEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <!-- 指CharacterEncodingFilter这个filter需要拦截所有请求 -->
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-  <!-- 4、使用Rest风格的URI，将页面普通的post请求转为指定的delete或者put请求 -->
-  <filter>
-    <filter-name>HiddenHttpMethodFilter</filter-name>
-    <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>HiddenHttpMethodFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  <filter>
-    <filter-name>HttpPutFormContentFilter</filter-name>
-    <filter-class>org.springframework.web.filter.HttpPutFormContentFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>HttpPutFormContentFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <!-- 4、使用Rest风格的URI，将页面普通的post请求转为指定的delete或者put请求 -->
+    <filter>
+        <filter-name>HiddenHttpMethodFilter</filter-name>
+        <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HiddenHttpMethodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
+        <filter-name>HttpPutFormContentFilter</filter-name>
+        <filter-class>org.springframework.web.filter.HttpPutFormContentFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>HttpPutFormContentFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
 </web-app>

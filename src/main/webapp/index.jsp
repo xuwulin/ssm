@@ -6,14 +6,26 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>员工列表</title>
-<%
-	pageContext.setAttribute("APP_PATH", request.getContextPath());
-%>
-<!-- web路径：
-不以/开始的相对路径，找资源，以当前资源的路径为基准，经常容易出问题。
-以/开始的相对路径，找资源，以服务器的路径为标准(http://localhost:3306)；需要加上项目名
+
+<%pageContext.setAttribute("APP_PATH", request.getContextPath());%>
+
+<!--
+	web路径：
+	不以/开始的相对路径，找资源，以当前资源的路径为基准，经常容易出问题。
+	以/开始的相对路径，找资源，以服务器的路径为标准(http://localhost:3306)；需要加上项目名
 		http://localhost:3306/crud
- -->
+-->
+<!--
+	<%--${pageContext.request.contextPath}--%>是什么意思？
+	优点：它的作用是取出部署应用程序的名字，这样不管如何部署，所用的路径都是正确的
+	缺点：其他工具无法正确解析它（只能用在jsp）
+	什么是当前的项目名称呢？ 
+	假定你的web application 名称为test,这个test就是当前的项目名称,不过你在浏览器中输入请求路径时，如： 
+	http//:localhost:8080/test/hello.jsp 
+	<%-- ${pageContext.request.contextPath}或<%request.getContextPath()%> --%>
+	就是从这个请求路径（URL）上截取（是截取）==> /test 看清楚，前面是有"/",
+	而这个“/”代表的是==>"http//:localhost:8080"，看清楚这里是没有"/"的！
+-->
 <script type="text/javascript"
 	src="${APP_PATH }/static/js/jquery-1.12.4.min.js"></script>
 <link
